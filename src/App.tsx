@@ -1,4 +1,5 @@
-﻿import { Route, Routes } from "react-router-dom";
+import { Suspense } from "react";
+import { Route, Routes } from "react-router-dom";
 import AppShell from "./components/AppShell";
 import { navItems } from "./components/navItems";
 
@@ -7,7 +8,7 @@ export default function App() {
     <Routes>
       <Route element={<AppShell />}>
         {navItems.map(({ path, component: Page }) => (
-          <Route key={path} path={path} element={<Page />} />
+          <Route key={path} path={path} element={<Suspense fallback={null}><Page /></Suspense>} />
         ))}
       </Route>
     </Routes>

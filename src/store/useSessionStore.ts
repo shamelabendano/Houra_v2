@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { seedSessions } from "../lib/seed";
 import { load, save } from "../lib/storage";
 import type { Session } from "../types";
 
@@ -43,7 +44,7 @@ const stopAll = (sessions: Session[], at: string): Session[] =>
   sessions.map((s) => (s.endedAt === null ? { ...s, endedAt: at } : s));
 
 export const useSessionStore = create<SessionState>((set, get) => ({
-  sessions: normalize(load<Session[]>("sessions", [])),
+  sessions: normalize(load<Session[]>("sessions", seedSessions())),
 
   startSession: (title, tagId, source = "timer") => {
     const startedAt = new Date().toISOString();

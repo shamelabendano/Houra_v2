@@ -1,11 +1,13 @@
-﻿import type { ComponentType } from "react";
+import { lazy, type ComponentType } from "react";
 import Home from "../pages/Home";
 import TimeTracker from "../pages/TimeTracker";
 import Pomodoro from "../pages/Pomodoro";
 import Calendar from "../pages/Calendar";
-import ProgressHistory from "../pages/ProgressHistory";
 import ManageTags from "../pages/ManageTags";
 import Earnings from "../pages/Earnings";
+
+// Lazy so the charting library only loads when this page is opened.
+const ProgressHistory = lazy(() => import("../pages/ProgressHistory"));
 
 export interface NavItem {
   path: string;

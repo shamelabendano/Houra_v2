@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subWeeks } from "date-fns";
 import type { Session, Tag } from "../types";
 
 /** Duration is never stored; a running session counts up to `now`. */
@@ -48,4 +48,66 @@ export function totalByDay(sessions: Session[], now: number = Date.now()): DayGr
   return [...groups.values()]
     .map((g) => ({ ...g, sessions: g.sessions.sort(byStartDesc) }))
     .sort((a, b) => b.day.localeCompare(a.day));
+}
+
+export type RangePreset = "thisWeek" | "lastWeek" | "thisMonth";
+
+export interface DateRange {
+  start: Date;
+  end: Date;
+}
+
+/** Inclusive local-time range for a preset. Weeks start on Monday. */
+export function rangeForPreset(preset: RangePreset, now: Date = new Date()): DateRange {
+  const opts = { weekStartsOn: 1 } as const;
+  switch (preset) {
+    case "thisWeek":
+      return { start: startOfWeek(now, opts), end: endOfWeek(now, opts) };
+    case "lastWeek": {
+      const ref = subWeeks(now, 1);
+      return { start: startOfWeek(ref, opts), end: endOfWeek(ref, opts) };
+    }
+    case "thisMonth":
+      return { start: startOfMonth(now), end: endOfMonth(now) };
+  }
+}
+
+/** A session belongs to the range its start time falls in (same rule as totalByDay). */
+export function inRange(session: Session, range: DateRange): boolean {
+  const t = new Date(session.startedAt).getTime();
+  return t >= range.start.getTime() && t <= range.end.getTime();
+}
+
+export interface TagChartDatum {
+  key: string; // tag id, or "untagged"
+  name: string;
+  color: string;
+  seconds: number;
+}
+
+const UNTAGGED_CHART_COLOR = "#a8a3b0";
+
+/** Per-tag totals for charting, largest first. Sums to the total of `sessions`. */
+export function tagChartData(
+  sessions: Session[],
+  tags: Tag[],
+  now: number = Date.now(),
+): TagChartDatum[] {
+  return Object.entries(totalByTag(sessions, now))
+    .filter(([, seconds]) => seconds > 0)
+    .map(([key, seconds]) => {
+      const tag = tags.find((t) => t.id === key);
+      return {
+        key,
+        name: tag?.name ?? "Untagged",
+        color: tag?.color ?? UNTAGGED_CHART_COLOR,
+        seconds,
+      };
+    })
+    .sort((a, b) => b.seconds - a.seconds);
+}
+
+/** Sum of all session durations. */
+export function totalSec(sessions: Session[], now: number = Date.now()): number {
+  return sessions.reduce((sum, s) => sum + durationSec(s, now), 0);
 }

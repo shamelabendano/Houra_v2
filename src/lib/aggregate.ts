@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import type { Session, Tag } from "../types";
 
 /** Duration is never stored; a running session counts up to `now`. */
@@ -25,4 +26,26 @@ export function tagTreeTotalSec(
 ): number {
   const childIds = tags.filter((t) => t.parentId === tagId).map((t) => t.id);
   return [tagId, ...childIds].reduce((sum, id) => sum + (totals[id] ?? 0), 0);
+}
+
+export interface DayGroup {
+  day: string; // local "yyyy-MM-dd" of the day the sessions started
+  totalSec: number;
+  sessions: Session[]; // newest first
+}
+
+/** Groups sessions by local start day (newest day first) with each day's total. */
+export function totalByDay(sessions: Session[], now: number = Date.now()): DayGroup[] {
+  const groups = new Map<string, DayGroup>();
+  for (const s of sessions) {
+    const day = format(new Date(s.startedAt), "yyyy-MM-dd");
+    const group = groups.get(day) ?? { day, totalSec: 0, sessions: [] };
+    group.totalSec += durationSec(s, now);
+    group.sessions.push(s);
+    groups.set(day, group);
+  }
+  const byStartDesc = (a: Session, b: Session) => b.startedAt.localeCompare(a.startedAt);
+  return [...groups.values()]
+    .map((g) => ({ ...g, sessions: g.sessions.sort(byStartDesc) }))
+    .sort((a, b) => b.day.localeCompare(a.day));
 }

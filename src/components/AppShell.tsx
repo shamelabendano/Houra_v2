@@ -1,9 +1,11 @@
 ﻿import { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { usePomodoroTicker } from "../lib/usePomodoroTicker";
 import Sidebar from "./Sidebar";
 
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  usePomodoroTicker();
 
   return (
     <div className="flex h-screen flex-col">

@@ -10,8 +10,8 @@ interface SessionState {
   /** Starts a timer, stopping any running session first (only one may run). */
   startSession: (title: string, tagId: string | null, source?: Session["source"]) => Session;
   stopSession: () => void;
-  /** Manual entry; returns false if the times are invalid. */
-  addSession: (input: SessionInput) => boolean;
+  /** Adds a finished session (manual by default); returns false if the times are invalid. */
+  addSession: (input: SessionInput, source?: Session["source"]) => boolean;
   /** Returns false if the times are invalid or it would create a second running session. */
   updateSession: (id: string, input: SessionInput) => boolean;
   deleteSession: (id: string) => void;
@@ -65,9 +65,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({ sessions: persist(stopAll(get().sessions, new Date().toISOString())) });
   },
 
-  addSession: (input) => {
+  addSession: (input, source = "manual") => {
     if (input.endedAt === null || !validRange(input.startedAt, input.endedAt)) return false;
-    const session: Session = { ...input, title: input.title.trim(), id: crypto.randomUUID(), source: "manual" };
+    const session: Session = { ...input, title: input.title.trim(), id: crypto.randomUUID(), source };
     set({ sessions: persist([...get().sessions, session]) });
     return true;
   },

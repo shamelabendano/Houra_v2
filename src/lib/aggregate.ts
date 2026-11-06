@@ -1,4 +1,4 @@
-import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subWeeks } from "date-fns";
+import { endOfDay, endOfMonth, endOfWeek, format, startOfDay, startOfMonth, startOfWeek, subWeeks } from "date-fns";
 import type { Session, Tag } from "../types";
 
 /** Duration is never stored; a running session counts up to `now`. */
@@ -50,7 +50,7 @@ export function totalByDay(sessions: Session[], now: number = Date.now()): DayGr
     .sort((a, b) => b.day.localeCompare(a.day));
 }
 
-export type RangePreset = "thisWeek" | "lastWeek" | "thisMonth";
+export type RangePreset = "today" | "thisWeek" | "lastWeek" | "thisMonth";
 
 export interface DateRange {
   start: Date;
@@ -61,6 +61,8 @@ export interface DateRange {
 export function rangeForPreset(preset: RangePreset, now: Date = new Date()): DateRange {
   const opts = { weekStartsOn: 1 } as const;
   switch (preset) {
+    case "today":
+      return { start: startOfDay(now), end: endOfDay(now) };
     case "thisWeek":
       return { start: startOfWeek(now, opts), end: endOfWeek(now, opts) };
     case "lastWeek": {
@@ -110,4 +112,25 @@ export function tagChartData(
 /** Sum of all session durations. */
 export function totalSec(sessions: Session[], now: number = Date.now()): number {
   return sessions.reduce((sum, s) => sum + durationSec(s, now), 0);
+}
+
+export interface GoalProgress {
+  trackedSec: number;       // this week's time on the tag, including its sub-tags
+  goalSec: number | null;   // null when the tag has no weekly goal
+  fraction: number | null;  // trackedSec / goalSec clamped to 0..1, null without a goal
+}
+
+/** Progress of a tag (and its sub-tags) toward its weekly goal, for the current week. */
+export function goalProgress(
+  tagId: string,
+  sessions: Session[],
+  tags: Tag[],
+  now: number = Date.now(),
+): GoalProgress {
+  const range = rangeForPreset("thisWeek", new Date(now));
+  const totals = totalByTag(sessions.filter((s) => inRange(s, range)), now);
+  const trackedSec = tagTreeTotalSec(tagId, tags, totals);
+  const goalSec = tags.find((t) => t.id === tagId)?.weeklyGoalSec ?? null;
+  const fraction = goalSec && goalSec > 0 ? Math.min(1, trackedSec / goalSec) : null;
+  return { trackedSec, goalSec: goalSec && goalSec > 0 ? goalSec : null, fraction };
 }

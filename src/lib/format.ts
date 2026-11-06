@@ -9,6 +9,12 @@ export function formatDuration(totalSec: number): string {
   return [h, m, sec].map((n) => String(n).padStart(2, "0")).join(":");
 }
 
+/** 44460 -> "12:21" (hours:minutes, for compact stat cards) */
+export function formatHoursMinutes(totalSec: number): string {
+  const m = Math.floor(Math.max(0, totalSec) / 60);
+  return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
+}
+
 /** ISO -> "07:08 PM" (local time) */
 export function formatClock(iso: string): string {
   return format(new Date(iso), "hh:mm a");

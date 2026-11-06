@@ -19,6 +19,7 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
   const [color, setColor] = useState(tag?.color ?? initial?.color ?? TAG_COLORS[0]);
   const [icon, setIcon] = useState(tag?.icon ?? initial?.icon ?? "tag");
   const [parentId, setParentId] = useState<string | null>(tag?.parentId ?? initial?.parentId ?? null);
+  const [goalHours, setGoalHours] = useState(tag?.weeklyGoalSec ? String(tag.weeklyGoalSec / 3600) : "");
   const [error, setError] = useState("");
 
   // Only top-level tags can be parents, and a tag that has children can't become a sub-tag.
@@ -27,7 +28,7 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSave({ name, color, icon, parentId })) onClose();
+    if (onSave({ name, color, icon, parentId, weeklyGoalSec: Number(goalHours) > 0 ? Math.round(Number(goalHours) * 3600) : undefined })) onClose();
     else setError("Name is required and the parent must be a top-level tag.");
   };
 
@@ -93,6 +94,18 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
               <option key={t.id} value={t.id}>{t.name}</option>
             ))}
           </select>
+        </label>
+
+        <label className="block text-sm">
+          Weekly goal (hours, optional)
+          <input
+            type="number"
+            min="0"
+            step="0.5"
+            value={goalHours}
+            onChange={(e) => setGoalHours(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+          />
         </label>
 
         {error && <p className="text-sm text-red-500">{error}</p>}

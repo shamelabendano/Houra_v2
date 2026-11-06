@@ -23,3 +23,10 @@ body {
   background: #fff;
 }
 
+
+/* Dashboard cells span their registry `defaultSize.cols` columns from tablet width up. */
+@media (min-width: 768px) {
+  .dash-cell {
+    grid-column: span var(--cols) / span var(--cols);
+  }
+}

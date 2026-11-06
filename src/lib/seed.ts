@@ -1,12 +1,12 @@
-import type { Session, Tag } from "../types";
+import type { DashboardWidget, Session, Tag } from "../types";
 
 const now = new Date().toISOString();
 
 // The ONLY place tag names appear in the codebase.
 export const seedTags: Tag[] = [
-  { id: "tag-gym", name: "Gym", color: "#ff5fb0", icon: "dumbbell", parentId: null, createdAt: now },
-  { id: "tag-work", name: "Work", color: "#ffa530", icon: "laptop", parentId: null, createdAt: now },
-  { id: "tag-code", name: "Code", color: "#10d97c", icon: "code", parentId: null, createdAt: now },
+  { id: "tag-gym", name: "Gym", color: "#ff5fb0", icon: "dumbbell", parentId: null, weeklyGoalSec: 5 * 3600, createdAt: now },
+  { id: "tag-work", name: "Work", color: "#ffa530", icon: "laptop", parentId: null, weeklyGoalSec: 40 * 3600, createdAt: now },
+  { id: "tag-code", name: "Code", color: "#10d97c", icon: "code", parentId: null, weeklyGoalSec: 6 * 3600, createdAt: now },
   { id: "tag-school", name: "School", color: "#f0d52a", icon: "school", parentId: null, createdAt: now },
   { id: "tag-school-1", name: "Subject #1", color: "#f0d52a", icon: "book", parentId: "tag-school", createdAt: now },
   { id: "tag-school-2", name: "Subject #2", color: "#f0d52a", icon: "book", parentId: "tag-school", createdAt: now },
@@ -45,3 +45,15 @@ export function seedSessions(now: Date = new Date()): Session[] {
     };
   });
 }
+
+/** Default Home layout, in display order. Tag stat cards point at seed tags by id. */
+export const seedDashboard: DashboardWidget[] = [
+  { id: "w-greeting", type: "greeting" },
+  { id: "w-stat-work", type: "tagStat", config: { tagId: "tag-work" } },
+  { id: "w-stat-gym", type: "tagStat", config: { tagId: "tag-gym" } },
+  { id: "w-stat-code", type: "tagStat", config: { tagId: "tag-code" } },
+  { id: "w-add-tag", type: "addTag" },
+  { id: "w-time-tracker", type: "timeTracker" },
+  { id: "w-clock", type: "clock" },
+  { id: "w-calendar", type: "calendar" },
+];

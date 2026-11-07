@@ -44,7 +44,7 @@ export default function TimeTrackerWidget({ widget }: WidgetProps) {
   return (
     <WidgetCard widgetId={widget.id} title="Time Tracker">
       <Link to="/time-tracker" className="absolute right-8 top-4 text-xs text-accent hover:underline">View all</Link>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-[#9b9aa3] bg-white px-3 py-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-line bg-surface px-3 py-2">
         <TagPicker
           tagId={running ? running.tagId : tagId}
           onChange={(id) => (running ? patch(running, { tagId: id }) : setTagId(id))}
@@ -57,7 +57,7 @@ export default function TimeTrackerWidget({ widget }: WidgetProps) {
           onKeyDown={(e) => e.key === "Enter" && !running && toggle()}
           placeholder="Enter your session's title here"
           aria-label="Session title"
-          className="min-w-[8rem] flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-accent"
+          className="min-w-[8rem] flex-1 rounded-lg border border-line px-3 py-1.5 text-sm outline-none focus:border-accent"
         />
         <span className="w-20 border-l border-ink/60 pl-3 text-right tabular-nums">
           {formatDuration(running ? durationSec(running, now) : 0)}

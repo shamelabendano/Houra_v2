@@ -41,7 +41,7 @@ export default function TagPicker({ tagId, onChange, emptyColor, emptyIcon }: Pr
         <TagBadge color={current?.color ?? emptyColor} icon={current?.icon ?? emptyIcon} />
       </button>
       {open && (
-        <ul role="listbox" className="absolute left-0 top-11 z-10 max-h-64 w-52 overflow-auto rounded-xl border bg-white py-1 text-sm shadow-lg">
+        <ul role="listbox" className="absolute left-0 top-11 z-10 max-h-64 w-52 overflow-auto rounded-xl border bg-surface py-1 text-sm shadow-lg">
           <li>
             <button
               type="button"

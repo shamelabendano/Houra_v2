@@ -34,14 +34,14 @@ export default function SessionEditor({ session, onSave, onClose }: Props) {
     else setError(running ? "Start must be in the past." : "End must be after start.");
   };
 
-  const field = "mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-accent";
+  const field = "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent";
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 p-4" onClick={onClose}>
       <form
         onSubmit={submit}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md space-y-4 rounded-card bg-white p-6 shadow-xl"
+        className="w-full max-w-md space-y-4 rounded-card bg-surface p-6 shadow-xl"
       >
         <h2 className="text-xl font-medium">{session ? "Edit session" : "Add session"}</h2>
         <div className="flex items-center gap-3">
@@ -51,7 +51,7 @@ export default function SessionEditor({ session, onSave, onClose }: Props) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Session title"
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-accent"
+            className="flex-1 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
           />
         </div>
         <label className="block text-sm">

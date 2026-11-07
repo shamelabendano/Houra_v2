@@ -24,14 +24,14 @@ export default function SessionRow({ session, now, onTitle, onTag, onToggle, onE
   const running = session.endedAt === null;
 
   return (
-    <div className="relative flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-[#9b9aa3] bg-white px-4 py-3">
+    <div className="relative flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-line bg-surface px-4 py-3">
       <TagPicker tagId={session.tagId} onChange={onTag} />
       <input
         value={session.title}
         onChange={(e) => onTitle(e.target.value)}
         placeholder="Untitled session"
         aria-label="Session title"
-        className="min-w-[10rem] flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-accent"
+        className="min-w-[10rem] flex-1 rounded-lg border border-line px-3 py-1.5 text-sm outline-none focus:border-accent"
       />
       <span className="whitespace-nowrap text-sm tabular-nums">
         {formatClock(session.startedAt)} - {session.endedAt ? formatClock(session.endedAt) : "now"}
@@ -51,7 +51,7 @@ export default function SessionRow({ session, now, onTitle, onTag, onToggle, onE
           ⋮
         </button>
         {open && (
-          <div className="absolute right-3 top-12 z-10 w-28 overflow-hidden rounded-xl border bg-white text-sm shadow-lg">
+          <div className="absolute right-3 top-12 z-10 w-28 overflow-hidden rounded-xl border bg-surface text-sm shadow-lg">
             <button className="block w-full px-3 py-2 text-left hover:bg-sidebar" onClick={() => { setOpen(false); onEdit(); }}>
               Edit
             </button>

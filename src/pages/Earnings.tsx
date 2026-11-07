@@ -68,7 +68,7 @@ export default function Earnings() {
         {rows.length === 0 && <p className="text-sm text-accent">No time tracked in this range.</p>}
         <ul className="space-y-2">
           {rows.map((r) => (
-            <li key={r.key} data-testid="earnings-row" className="flex items-center gap-4 rounded-xl border border-[#9b9aa3] bg-white px-4 py-2">
+            <li key={r.key} data-testid="earnings-row" className="flex items-center gap-4 rounded-xl border border-line bg-surface px-4 py-2">
               <TagBadge color={tags.find((t) => t.id === r.key)?.color} icon={tags.find((t) => t.id === r.key)?.icon} size={30} />
               <span className="flex-1 truncate text-sm">{r.name}</span>
               <span className="text-sm tabular-nums text-ink/60">{formatHoursMinutes(r.seconds)}</span>

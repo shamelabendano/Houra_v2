@@ -1,7 +1,9 @@
 import { useState } from "react";
 import TagBadge from "./TagBadge";
 import { ICON_KEYS, TAG_ICONS } from "./tagIcons";
+import { effectiveRate } from "../lib/aggregate";
 import { TAG_COLORS } from "../lib/seed";
+import { useSettingsStore } from "../store/useSettingsStore";
 import type { TagInput } from "../store/useTagStore";
 import type { Tag } from "../types";
 
@@ -20,15 +22,24 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
   const [icon, setIcon] = useState(tag?.icon ?? initial?.icon ?? "tag");
   const [parentId, setParentId] = useState<string | null>(tag?.parentId ?? initial?.parentId ?? null);
   const [goalHours, setGoalHours] = useState(tag?.weeklyGoalSec ? String(tag.weeklyGoalSec / 3600) : "");
+  const [rate, setRate] = useState(tag?.hourlyRate ? String(tag.hourlyRate) : "");
+  const currency = useSettingsStore((s) => s.settings.currency);
   const [error, setError] = useState("");
 
   // Only top-level tags can be parents, and a tag that has children can't become a sub-tag.
   const hasChildren = tag ? tags.some((t) => t.parentId === tag.id) : false;
   const parents = tags.filter((t) => t.parentId === null && t.id !== tag?.id);
 
-  const submit = (e: React.FormEvent) => {
+  // What this tag would earn if its own rate were blank (the chosen parent's rate).
+  const inheritedRate = effectiveRate(tags.find((t) => t.id === parentId), tags);
+
+  const submit =(e: React.FormEvent) => {
     e.preventDefault();
-    if (onSave({ name, color, icon, parentId, weeklyGoalSec: Number(goalHours) > 0 ? Math.round(Number(goalHours) * 3600) : undefined })) onClose();
+    if (onSave({
+      name, color, icon, parentId,
+      weeklyGoalSec: Number(goalHours) > 0 ? Math.round(Number(goalHours) * 3600) : undefined,
+      hourlyRate: Number(rate) > 0 ? Number(rate) : undefined,
+    })) onClose();
     else setError("Name is required and the parent must be a top-level tag.");
   };
 
@@ -104,6 +115,19 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
             step="0.5"
             value={goalHours}
             onChange={(e) => setGoalHours(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+          />
+        </label>
+
+        <label className="block text-sm">
+          Hourly rate ({currency}/hr, optional)
+          <input
+            type="number"
+            min="0"
+            step="any"
+            value={rate}
+            placeholder={inheritedRate > 0 ? `Inherits ${inheritedRate}` : ""}
+            onChange={(e) => setRate(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
           />
         </label>

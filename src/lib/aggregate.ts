@@ -114,6 +114,32 @@ export function totalSec(sessions: Session[], now: number = Date.now()): number 
   return sessions.reduce((sum, s) => sum + durationSec(s, now), 0);
 }
 
+/** A tag's own hourly rate, else its parent's, else 0. */
+export function effectiveRate(tag: Tag | undefined, tags: Tag[]): number {
+  if (!tag) return 0;
+  if (tag.hourlyRate && tag.hourlyRate > 0) return tag.hourlyRate;
+  const parent = tag.parentId ? tags.find((t) => t.id === tag.parentId) : undefined;
+  return parent?.hourlyRate && parent.hourlyRate > 0 ? parent.hourlyRate : 0;
+}
+
+export interface Earnings {
+  total: number;
+  byTag: Record<string, number>; // tag id, or "untagged" (always 0)
+}
+
+/** Earnings of `sessions`: each session is rounded to cents so rows always sum to the total. */
+export function earnings(sessions: Session[], tags: Tag[], now: number = Date.now()): Earnings {
+  const byTag: Record<string, number> = {};
+  let total = 0;
+  for (const s of sessions) {
+    const rate = effectiveRate(tags.find((t) => t.id === s.tagId), tags);
+    const amount = Math.round((durationSec(s, now) / 3600) * rate * 100) / 100;
+    byTag[s.tagId ?? "untagged"] = (byTag[s.tagId ?? "untagged"] ?? 0) + amount;
+    total += amount;
+  }
+  return { total, byTag };
+}
+
 export interface GoalProgress {
   trackedSec: number;       // this week's time on the tag, including its sub-tags
   goalSec: number | null;   // null when the tag has no weekly goal

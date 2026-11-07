@@ -15,6 +15,18 @@ export function formatHoursMinutes(totalSec: number): string {
   return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
 }
 
+/** 3938 -> "1h 05m 38s" */
+export function formatElapsedHms(totalSec: number): string {
+  const s = Math.max(0, Math.floor(totalSec));
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${Math.floor(s / 3600)}h ${pad(Math.floor((s % 3600) / 60))}m ${pad(s % 60)}s`;
+}
+
+/** 100 + "PHP" -> "₱100.00" */
+export function formatCurrency(amount: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol" }).format(amount);
+}
+
 /** ISO -> "07:08 PM" (local time) */
 export function formatClock(iso: string): string {
   return format(new Date(iso), "hh:mm a");

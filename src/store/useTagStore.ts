@@ -4,7 +4,7 @@ import { seedTags } from "../lib/seed";
 import { useSessionStore } from "./useSessionStore";
 import type { Tag } from "../types";
 
-export type TagInput = Pick<Tag, "name" | "color" | "icon" | "parentId" | "weeklyGoalSec">;
+export type TagInput = Pick<Tag, "name" | "color" | "icon" | "parentId" | "weeklyGoalSec" | "hourlyRate">;
 
 interface TagState {
   tags: Tag[];

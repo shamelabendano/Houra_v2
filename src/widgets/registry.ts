@@ -1,6 +1,7 @@
 import AddTagWidget from "./AddTagWidget";
 import CalendarWidget from "./CalendarWidget";
 import ClockWidget from "./ClockWidget";
+import EarningsWidget from "./EarningsWidget";
 import GreetingWidget from "./GreetingWidget";
 import PomodoroWidget from "./PomodoroWidget";
 import TagStatWidget from "./TagStatWidget";
@@ -17,5 +18,6 @@ export const registry: Record<string, WidgetDef> = {
   clock: { title: "Analog Clock", component: ClockWidget, defaultSize: { cols: 2 }, addable: true },
   calendar: { title: "Calendar", component: CalendarWidget, defaultSize: { cols: 2 }, addable: true },
   pomodoro: { title: "Pomodoro", component: PomodoroWidget, defaultSize: { cols: 2 }, addable: true },
+  earnings: { title: "Earnings", component: EarningsWidget, defaultSize: { cols: 2 }, addable: true },
   todayTotal: { title: "Today total", component: TodayTotalWidget, defaultSize: { cols: 2 }, addable: true },
 };

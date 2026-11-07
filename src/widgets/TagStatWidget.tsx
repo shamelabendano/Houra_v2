@@ -32,8 +32,8 @@ export default function TagStatWidget({ widget }: WidgetProps) {
     <section
       className="group relative h-full overflow-hidden rounded-card border"
       style={{
-        borderColor: `color-mix(in srgb, ${tag.color} 35%, white)`,
-        background: `color-mix(in srgb, ${tag.color} 10%, white)`,
+        borderColor: `color-mix(in srgb, ${tag.color} 35%, var(--color-surface))`,
+        background: `color-mix(in srgb, ${tag.color} 10%, var(--color-surface))`,
         color: tag.color,
       }}
     >
@@ -44,7 +44,7 @@ export default function TagStatWidget({ widget }: WidgetProps) {
       >
         ×
       </button>
-      <div className="flex items-center gap-2 px-2 py-1.5" style={{ background: `color-mix(in srgb, ${tag.color} 25%, white)` }}>
+      <div className="flex items-center gap-2 px-2 py-1.5" style={{ background: `color-mix(in srgb, ${tag.color} 25%, var(--color-surface))` }}>
         <TagBadge color={tag.color} icon={tag.icon} size={30} />
         <span className="truncate text-lg font-semibold">{tag.name}</span>
       </div>
@@ -59,7 +59,7 @@ export default function TagStatWidget({ widget }: WidgetProps) {
         {goalSec === null && <p className="text-xs font-normal opacity-70">No weekly goal</p>}
       </div>
       {fraction !== null && (
-        <div className="mx-3 mb-3 h-1.5 overflow-hidden rounded-full bg-white/70" aria-label="Goal progress">
+        <div className="mx-3 mb-3 h-1.5 overflow-hidden rounded-full bg-surface/70" aria-label="Goal progress">
           <div className="h-full rounded-full" style={{ width: `${fraction * 100}%`, background: tag.color }} />
         </div>
       )}

@@ -22,7 +22,7 @@ export default function AddWidgetMenu() {
         + Add widget
       </button>
       {open && (
-        <ul role="menu" className="absolute right-0 top-11 z-10 w-48 overflow-hidden rounded-xl border bg-white py-1 text-sm shadow-lg">
+        <ul role="menu" className="absolute right-0 top-11 z-10 w-48 overflow-hidden rounded-xl border bg-surface py-1 text-sm shadow-lg">
           {Object.entries(registry)
             .filter(([, def]) => def.addable)
             .map(([type, def]) => (

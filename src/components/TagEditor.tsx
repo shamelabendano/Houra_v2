@@ -48,7 +48,7 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
       <form
         onSubmit={submit}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md space-y-4 rounded-card bg-white p-6 shadow-xl"
+        className="w-full max-w-md space-y-4 rounded-card bg-surface p-6 shadow-xl"
       >
         <h2 className="text-xl font-medium">{tag ? "Edit tag" : "New tag"}</h2>
 
@@ -59,7 +59,7 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Tag name"
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-accent"
+            className="flex-1 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
           />
         </div>
 
@@ -98,7 +98,7 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
             value={parentId ?? ""}
             disabled={hasChildren}
             onChange={(e) => setParentId(e.target.value || null)}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2"
           >
             <option value="">None (top-level)</option>
             {parents.map((t) => (
@@ -115,7 +115,7 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
             step="0.5"
             value={goalHours}
             onChange={(e) => setGoalHours(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2"
           />
         </label>
 
@@ -128,7 +128,7 @@ export default function TagEditor({ tag, tags, initial, onSave, onClose }: Props
             value={rate}
             placeholder={inheritedRate > 0 ? `Inherits ${inheritedRate}` : ""}
             onChange={(e) => setRate(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2"
           />
         </label>
 

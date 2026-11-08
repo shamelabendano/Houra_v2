@@ -55,4 +55,5 @@ PROMPTS.md names files that later phases rename or add. Add a rule: the prompt s
 
 - Start every session with `git status` and `git branch --show-current`; stop and ask if the tree is dirty or the branch is not the ticket's.
 - Commit `PLAYBOOK_NOTES.md` changes on a `docs-` branch, not on a feature branch.
-- Keep a `DECISIONS.md` (one line each: delete-tag behavior, week starts Monday, PHP default) so decisions aren't re-litigated per session.
+- Every project keeps a `DECISIONS.md` (one line per settled choice, with the date) and every session reads it first, so decisions aren't re-litigated. The playbook ships a blank template; each project fills its own. Houra's is `DECISIONS.md`.
+- Tickets: at the start of a phase the agent drafts the issue text from BUILD_PLAN.md; the user approves before it is created.

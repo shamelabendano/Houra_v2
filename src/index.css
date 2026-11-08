@@ -46,3 +46,7 @@ body {
     grid-column: span var(--cols) / span var(--cols);
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}

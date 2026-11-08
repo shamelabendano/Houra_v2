@@ -1,4 +1,4 @@
-import { format, isToday, isYesterday, parseISO } from "date-fns";
+import { format, isSameDay, parseISO, subDays } from "date-fns";
 
 /** 3938 -> "01:05:38" */
 export function formatDuration(totalSec: number): string {
@@ -35,8 +35,8 @@ export function formatClock(iso: string): string {
 /** "yyyy-MM-dd" -> "Today" | "Yesterday" | "Mon, Mar 17" */
 export function formatDayLabel(day: string, now: Date = new Date()): string {
   const date = parseISO(day);
-  if (isToday(date)) return "Today";
-  if (isYesterday(date)) return "Yesterday";
+  if (isSameDay(date, now)) return "Today";
+  if (isSameDay(date, subDays(now, 1))) return "Yesterday";
   return format(date, now.getFullYear() === date.getFullYear() ? "EEE, MMM d" : "EEE, MMM d, yyyy");
 }
 

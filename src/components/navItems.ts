@@ -19,7 +19,7 @@ export interface NavItem {
 
 // Single source for both the sidebar links and the router.
 export const navItems: NavItem[] = [
-  { path: "/", label: "Home", component: Home, group: "main" },
+  { path: "/home", label: "Home", component: Home, group: "main" },
   { path: "/time-tracker", label: "Time Tracker", component: TimeTracker, group: "main" },
   { path: "/pomodoro", label: "Pomodoro", component: Pomodoro, group: "main" },
   { path: "/calendar", label: "Calendar", component: Calendar, group: "main" },

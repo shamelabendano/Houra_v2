@@ -36,10 +36,13 @@ export default function Calendar() {
       ? format(anchor, "EEEE, MMMM d, yyyy")
       : `${format(days[0], "MMM d")} – ${format(days[6], "MMM d, yyyy")}`;
 
-  // Open scrolled to the working day rather than midnight.
+  // Open near the current time (so recent sessions are in view), else the working day.
   useEffect(() => {
-    scroller.current?.scrollTo({ top: 7 * HOUR_PX });
-  }, [view]);
+    const showsToday = days.some((d) => isToday(d));
+    const hour = showsToday ? Math.max(0, new Date().getHours() - 3) : 7;
+    scroller.current?.scrollTo({ top: hour * HOUR_PX });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, anchor]);
 
   const btn = "rounded-xl bg-panel px-3 py-1 text-accent hover:opacity-80";
   const cols = { gridTemplateColumns: `3.5rem repeat(${days.length}, minmax(0, 1fr))` };
@@ -94,7 +97,7 @@ export default function Calendar() {
         </div>
 
         {/* Scrollable 24h grid */}
-        <div ref={scroller} className="max-h-[65vh] overflow-y-auto">
+        <div ref={scroller} className="max-h-[calc(100vh-16rem)] min-h-[20rem] overflow-y-auto">
           <div className="relative grid" style={{ ...cols, height: 24 * HOUR_PX }}>
             <div className="relative">
               {HOURS.slice(1).map((h) => (

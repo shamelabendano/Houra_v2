@@ -160,3 +160,57 @@ export function goalProgress(
   const fraction = goalSec && goalSec > 0 ? Math.min(1, trackedSec / goalSec) : null;
   return { trackedSec, goalSec: goalSec && goalSec > 0 ? goalSec : null, fraction };
 }
+
+export interface DaySegment {
+  session: Session;
+  startMin: number; // minutes from local midnight, clipped to the day
+  endMin: number;   // exclusive, max 1440
+  lane: number;     // column within a cluster of overlapping sessions
+  lanes: number;    // number of columns in that cluster
+}
+
+/** Sessions clipped to one local day, with side-by-side lanes for overlaps (calendar time grid). */
+export function daySegments(sessions: Session[], day: Date, now: number = Date.now()): DaySegment[] {
+  const dayStart = startOfDay(day).getTime();
+  const dayEnd = dayStart + 24 * 3600_000;
+  const raw = sessions
+    .map((session) => {
+      const start = new Date(session.startedAt).getTime();
+      const end = session.endedAt ? new Date(session.endedAt).getTime() : now;
+      return { session, start: Math.max(start, dayStart), end: Math.min(end, dayEnd) };
+    })
+    .filter((r) => r.end > r.start)
+    .sort((a, b) => a.start - b.start || b.end - a.end);
+
+  const result: DaySegment[] = [];
+  let cluster: DaySegment[] = [];
+  let laneEnds: number[] = [];
+  let clusterEnd = -Infinity;
+  const flush = () => {
+    for (const seg of cluster) seg.lanes = laneEnds.length;
+    cluster = [];
+    laneEnds = [];
+  };
+  for (const r of raw) {
+    if (r.start >= clusterEnd) {
+      flush();
+      clusterEnd = r.end;
+    } else {
+      clusterEnd = Math.max(clusterEnd, r.end);
+    }
+    let lane = laneEnds.findIndex((end) => end <= r.start);
+    if (lane === -1) lane = laneEnds.length;
+    laneEnds[lane] = r.end;
+    const seg: DaySegment = {
+      session: r.session,
+      startMin: (r.start - dayStart) / 60_000,
+      endMin: (r.end - dayStart) / 60_000,
+      lane,
+      lanes: 1,
+    };
+    cluster.push(seg);
+    result.push(seg);
+  }
+  flush();
+  return result;
+}

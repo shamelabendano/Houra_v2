@@ -5,6 +5,7 @@ import Pomodoro from "../pages/Pomodoro";
 import Calendar from "../pages/Calendar";
 import ManageTags from "../pages/ManageTags";
 import Earnings from "../pages/Earnings";
+import Settings from "../pages/Settings";
 
 // Lazy so the charting library only loads when this page is opened.
 const ProgressHistory = lazy(() => import("../pages/ProgressHistory"));
@@ -25,4 +26,5 @@ export const navItems: NavItem[] = [
   { path: "/progress-history", label: "Progress History", component: ProgressHistory, group: "main" },
   { path: "/manage-tags", label: "Manage Tags", component: ManageTags, group: "main" },
   { path: "/earnings", label: "Earnings", component: Earnings, group: "secondary" },
+  { path: "/settings", label: "Settings", component: Settings, group: "secondary" },
 ];

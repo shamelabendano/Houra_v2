@@ -50,3 +50,8 @@ Verify: sessions on a given date appear on that calendar date; theme persists af
 Public landing page (Home, Features, About, Credits from the prototype) rendered OUTSIDE the AppShell with no sidebar. Then swap `storage.ts` to a backend (Supabase is the suggested pick) so data syncs across devices. Only `storage.ts` and the auth layer change.
 
 Verify: sign in on two browsers and see the same sessions.
+
+### Phase 9 — Export / Import (Settings)
+Settings page with a Backup section: export tags, sessions, settings and dashboard to a JSON file, and import one back (Merge adds records with new ids; Replace overwrites). Storage is still only touched through `storage.ts`; logic lives in `lib/backup.ts`.
+
+Verify: export, import into a second browser, and see the same sessions; invalid or non-Houra files show an error and change nothing.

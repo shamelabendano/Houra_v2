@@ -4,7 +4,7 @@ import { usePomodoroTicker } from "../lib/usePomodoroTicker";
 import Sidebar from "./Sidebar";
 
 export default function AppShell() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   usePomodoroTicker();
 
   return (

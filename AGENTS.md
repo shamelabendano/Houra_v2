@@ -83,3 +83,14 @@ src/
 
 ## Branding
 Calm, friendly, productive. Periwinkle/sky-blue header (#9EC1FF-ish), white content area, pale blue panels, blue primary buttons with a slight 3D bottom edge, rounded 12–16px corners, Poppins. Tag colors come from tag data (pink gym, orange work, green code, yellow school are seed examples only). Tagline: "Your time, your terms."
+
+
+## Git workflow (every session follows this)
+- `main` is always the last known-good version. Never commit to it directly.
+- One ticket (GitHub issue, from `.github/ISSUE_TEMPLATE/phase-ticket.md`) = one branch = one PR.
+- Branch names: `phase-<n>-<short-name>`, `fix-<short-name>`, `chore-<short-name>`, `docs-<short-name>`. Branch from an up-to-date `main`.
+- Never mix work from two phases on one branch. If you notice out-of-scope work, make a new ticket instead.
+- Commits: imperative subject, e.g. `Phase 6: Earnings page`. Commit only files belonging to the ticket.
+- Open the PR with `.github/pull_request_template.md` filled in, including "Closes #N" and what you actually verified. Merge only after the phase's Verify step (and any Scalability Gate) passes.
+- Never commit secrets (`.env*` except `.env.example`) or build artifacts (`dist`, `*.tsbuildinfo`).
+- Run `npm run build` and `npm test` before opening a PR.

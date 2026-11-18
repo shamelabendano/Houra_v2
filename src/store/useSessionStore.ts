@@ -41,7 +41,7 @@ const validRange = (startedAt: string, endedAt: string | null) => {
 };
 
 const stopAll = (sessions: Session[], at: string): Session[] =>
-  sessions.map((s) => (s.endedAt === null ? { ...s, endedAt: at } : s));
+  sessions.map((s) => (s.endedAt === null ? { ...s, title: s.title.trim(), endedAt: at } : s));
 
 export const useSessionStore = create<SessionState>((set, get) => ({
   sessions: normalize(load<Session[]>("sessions", seedSessions())),
@@ -78,7 +78,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     if (input.endedAt === null && existing.endedAt !== null) return false; // can't re-open a finished session
     set({
       sessions: persist(
-        get().sessions.map((s) => (s.id === id ? { ...s, ...input, title: input.title.trim() } : s)),
+        get().sessions.map((s) => (s.id === id ? { ...s, ...input } : s)), // untrimmed: titles are edited live, per keystroke
       ),
     });
     return true;

@@ -39,7 +39,7 @@ export default function TimeTracker() {
     <div>
       <h1 className="text-4xl font-normal text-ink">Time Tracker</h1>
 
-      <div className="relative mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-[#9b9aa3] bg-white px-4 py-3">
+      <div className="relative mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-line bg-surface px-4 py-3">
         <TagPicker
           tagId={running ? running.tagId : tagId}
           onChange={(id) => (running ? patch(running, { tagId: id }) : setTagId(id))}
@@ -52,7 +52,7 @@ export default function TimeTracker() {
           onKeyDown={(e) => e.key === "Enter" && !running && toggleEntry()}
           placeholder="Enter your session's title here"
           aria-label="Session title"
-          className="min-w-[10rem] flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-accent"
+          className="min-w-[10rem] flex-1 rounded-lg border border-line px-3 py-1.5 text-sm outline-none focus:border-accent"
         />
         <span className="whitespace-nowrap text-sm tabular-nums text-ink/80">
           {running ? `${formatClock(running.startedAt)} - now` : "00:00:00 am - 00:00:00 pm"}
@@ -72,7 +72,7 @@ export default function TimeTracker() {
             ⋮
           </button>
           {menu && (
-            <div className="absolute right-3 top-12 z-10 w-40 overflow-hidden rounded-xl border bg-white text-sm shadow-lg">
+            <div className="absolute right-3 top-12 z-10 w-40 overflow-hidden rounded-xl border bg-surface text-sm shadow-lg">
               <button
                 className="block w-full px-3 py-2 text-left hover:bg-sidebar"
                 onClick={() => { setMenu(false); setAdding(true); }}

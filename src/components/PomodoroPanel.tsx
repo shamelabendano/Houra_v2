@@ -12,7 +12,7 @@ interface StepperProps {
 
 function Stepper({ label, value, onChange }: StepperProps) {
   return (
-    <div className="flex items-stretch overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <div className="flex items-stretch overflow-hidden rounded-lg border border-line bg-surface">
       <div className="px-4 py-2 text-center">
         <input
           type="number"
@@ -24,11 +24,11 @@ function Stepper({ label, value, onChange }: StepperProps) {
         />
         <div className="text-xs text-ink/60">mins</div>
       </div>
-      <div className="flex flex-col border-l border-gray-200 text-xs">
+      <div className="flex flex-col border-l border-line text-xs">
         <button type="button" aria-label={`Increase ${label}`} onClick={() => onChange(value + 1)} className="flex-1 px-2 hover:bg-sidebar">
           ▲
         </button>
-        <button type="button" aria-label={`Decrease ${label}`} onClick={() => onChange(value - 1)} className="flex-1 border-t border-gray-200 px-2 hover:bg-sidebar">
+        <button type="button" aria-label={`Decrease ${label}`} onClick={() => onChange(value - 1)} className="flex-1 border-t border-line px-2 hover:bg-sidebar">
           ▼
         </button>
       </div>

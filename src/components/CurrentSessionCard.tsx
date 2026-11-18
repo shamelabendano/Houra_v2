@@ -17,7 +17,7 @@ export default function CurrentSessionCard() {
   const elapsed = running ? durationSec(running, now) : 0;
 
   return (
-    <div className="w-fit min-w-48 rounded-xl border border-[#9b9aa3] bg-white px-6 py-4 text-center">
+    <div className="w-fit min-w-48 rounded-xl border border-line bg-surface px-6 py-4 text-center">
       <span className="rounded-sm bg-panel px-2 py-0.5 text-sm">Current Session</span>
       <p data-testid="current-session-earnings" className="mt-1 text-3xl font-bold tabular-nums text-[#10b981]">
         {formatCurrency(amount, currency)}

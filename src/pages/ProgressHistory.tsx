@@ -74,7 +74,7 @@ export default function ProgressHistory() {
             {d.sessions.map((s) => {
               const tag = tags.find((t) => t.id === s.tagId);
               return (
-                <li key={s.id} className="flex items-center gap-4 rounded-xl border border-[#9b9aa3] bg-white px-4 py-2">
+                <li key={s.id} className="flex items-center gap-4 rounded-xl border border-line bg-surface px-4 py-2">
                   <TagBadge color={tag?.color} icon={tag?.icon} size={30} />
                   <span className="flex-1 truncate text-sm">{s.title || "Untitled session"}</span>
                   <span className="whitespace-nowrap text-sm tabular-nums">

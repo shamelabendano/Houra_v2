@@ -46,8 +46,10 @@ Calendar page showing sessions by day, dark mode toggle in Settings, empty state
 
 Verify: sessions on a given date appear on that calendar date; theme persists after refresh.
 
-### Phase 8 — Landing page + auth/sync
+### Phase 8 — Landing page + auth/sync (IN PROGRESS, draft PR #10)
 Public landing page (Home, Features, About, Credits from the prototype) rendered OUTSIDE the AppShell with no sidebar. Then swap `storage.ts` to a backend (Supabase is the suggested pick) so data syncs across devices. Only `storage.ts` and the auth layer change.
+
+Status: code is written on `phase-8-landing-auth-sync` but has never run against a real Supabase project. Remaining: create the Supabase project, set env vars, run the two-browser check, merge.
 
 Verify: sign in on two browsers and see the same sessions.
 
@@ -55,3 +57,20 @@ Verify: sign in on two browsers and see the same sessions.
 Settings page with a Backup section: export tags, sessions, settings and dashboard to a JSON file, and import one back (Merge adds records with new ids; Replace overwrites). Storage is still only touched through `storage.ts`; logic lives in `lib/backup.ts`.
 
 Verify: export, import into a second browser, and see the same sessions; invalid or non-Houra files show an error and change nothing.
+
+### Phase 10 — Revamp: Today / History / Insights
+Merge the overlapping views by job: Today (timer + today's log + quick totals, replaces Home and Time Tracker), History (Day / Week / Month toggle, replaces Calendar and the Progress History list), Insights (trends, goals, streaks, earnings). UI and navigation only; `Session`, `Tag` and `Settings` do not change. Before starting, decide: keep or drop the Home widget grid (dropping it changes the stored dashboard layout, which sync uploads), and where Pomodoro, Earnings, Manage Tags and Settings live.
+
+Verify: every number matches the pre-revamp pages for the same date range; nothing that was reachable before is lost.
+
+### Phase 11 — Landing page polish
+Update landing screenshots and copy to match the revamped app.
+
+---
+
+## Order of work (from now)
+1. Land the open PRs: #7 (calendar), time-grid calendar branch, title-spaces fix, #11 (Phase 9), #9 (tests), #8 (docs).
+2. Finish Phase 8 (Supabase check, merge #10).
+3. Phase 10 revamp.
+4. Phase 11 landing polish.
+ESLint/CI stay on ROADMAP.md until the user confirms.

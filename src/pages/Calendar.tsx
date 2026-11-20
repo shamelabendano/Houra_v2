@@ -1,4 +1,4 @@
-﻿import { addDays, addWeeks, eachDayOfInterval, endOfWeek, format, isToday, startOfDay, startOfWeek } from "date-fns";
+﻿import { addDays, addMinutes, addWeeks, eachDayOfInterval, endOfWeek, format, isToday, startOfDay, startOfWeek } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { daySegments, durationSec } from "../lib/aggregate";
 import { formatClock, formatDuration } from "../lib/format";
@@ -7,11 +7,38 @@ import { useSessionStore } from "../store/useSessionStore";
 import { useTagStore } from "../store/useTagStore";
 
 const WEEK = { weekStartsOn: 1 } as const; // same week start as aggregate.rangeForPreset
-const HOUR_PX = 48;
+const BASE_HOUR_PX = 48;
 const UNTAGGED_COLOR = "#a8a3b0";
 const HOURS = Array.from({ length: 24 }, (_, h) => h);
 
+const SNAP_MIN = 15;
+const DRAG_THRESHOLD_PX = 4;
+
 type View = "day" | "week";
+
+/** Live drag state: the whole session moves by dDays columns and dMin minutes. */
+interface Drag {
+  id: string;
+  dDays: number;
+  dMin: number;
+}
+
+/** Fixed facts captured at pointer-down (bounds keep the block inside the visible grid). */
+interface DragStart {
+  x0: number;
+  y0: number;
+  colW: number;
+  hourPx: number;
+  minMin: number;
+  maxMin: number;
+  minDay: number;
+  maxDay: number;
+  moved: boolean;
+  dDays: number;
+  dMin: number;
+}
+
+const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 
 /** Google-Calendar-style time grid: a 24h vertical axis with one column per day. */
 export default function Calendar() {
@@ -22,6 +49,29 @@ export default function Calendar() {
   const [view, setView] = useState<View>("week");
   const [anchor, setAnchor] = useState(() => startOfDay(new Date()));
   const scroller = useRef<HTMLDivElement>(null);
+  const updateSession = useSessionStore((s) => s.updateSession);
+  const [drag, setDrag] = useState<Drag | null>(null);
+  const dragStart = useRef<DragStart | null>(null);
+  const [full, setFull] = useState(false);
+  const [fitPx, setFitPx] = useState(0);
+  // Full screen: shrink the hour height so all 24h fit in view with no scrolling.
+  const HOUR_PX = full && fitPx > 0 ? fitPx / 24 : BASE_HOUR_PX;
+
+  useEffect(() => {
+    if (!full) return;
+    const el = scroller.current;
+    if (!el) return;
+    const measure = () => setFitPx(el.clientHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setFull(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [full]);
 
   const days = useMemo(
     () =>
@@ -40,9 +90,9 @@ export default function Calendar() {
   useEffect(() => {
     const showsToday = days.some((d) => isToday(d));
     const hour = showsToday ? Math.max(0, new Date().getHours() - 3) : 7;
-    scroller.current?.scrollTo({ top: hour * HOUR_PX });
+    scroller.current?.scrollTo({ top: full ? 0 : hour * HOUR_PX });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, anchor]);
+  }, [view, anchor, full]);
 
   const btn = "rounded-xl bg-panel px-3 py-1 text-accent hover:opacity-80";
   const cols = { gridTemplateColumns: `3.5rem repeat(${days.length}, minmax(0, 1fr))` };
@@ -50,10 +100,10 @@ export default function Calendar() {
   const line = "rgb(75 69 83 / 0.1)";
 
   return (
-    <div>
-      <h1 className="text-4xl font-normal text-ink">Calendar</h1>
+    <div className={full ? "fixed inset-0 z-50 flex flex-col bg-white p-3" : ""}>
+      {!full && <h1 className="text-4xl font-normal text-ink">Calendar</h1>}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
+      <div className={`flex flex-wrap items-center gap-2 ${full ? "" : "mt-4"}`}>
         <button className={btn} aria-label="Previous" onClick={() => step(-1)}>‹</button>
         <button className={btn} aria-label="Next" onClick={() => step(1)}>›</button>
         <button className="rounded-xl bg-panel px-4 py-1 text-sm" onClick={() => setAnchor(startOfDay(new Date()))}>
@@ -72,9 +122,21 @@ export default function Calendar() {
             </button>
           ))}
         </span>
+        <button
+          className="rounded-xl bg-panel px-3 py-1 text-sm text-ink hover:opacity-80"
+          aria-pressed={full}
+          title={full ? "Exit full screen (Esc)" : "Full screen: see all 24 hours at once"}
+          onClick={() => setFull((f) => !f)}
+        >
+          {full ? "⤡ Exit full screen" : "⤢ Full screen"}
+        </button>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-[var(--radius-card)] border border-ink/10 bg-white">
+      <div
+        className={`mt-4 overflow-hidden rounded-[var(--radius-card)] border border-ink/10 bg-white ${
+          full ? "flex min-h-0 flex-1 flex-col" : ""
+        }`}
+      >
         {/* Day headers */}
         <div className="grid border-b border-ink/10 bg-sidebar" style={cols}>
           <span />
@@ -97,7 +159,9 @@ export default function Calendar() {
         </div>
 
         {/* Scrollable 24h grid */}
-        <div ref={scroller} className="max-h-[calc(100vh-16rem)] min-h-[20rem] overflow-y-auto">
+        <div ref={scroller} className={
+            full ? "min-h-0 flex-1 overflow-hidden" : "max-h-[calc(100vh-16rem)] min-h-[20rem] overflow-y-auto"
+          }>
           <div className="relative grid" style={{ ...cols, height: 24 * HOUR_PX }}>
             <div className="relative">
               {HOURS.slice(1).map((h) => (
@@ -125,6 +189,13 @@ export default function Calendar() {
                 >
                   {segs.map((seg) => {
                     const s = seg.session;
+                    const dayIdx = days.indexOf(d);
+                    const movable = s.endedAt !== null; // a running session can't be moved
+                    const dragging = drag?.id === s.id ? drag : null;
+                    const endDrag = () => {
+                      dragStart.current = null;
+                      setDrag(null);
+                    };
                     const tag = tags.find((t) => t.id === s.tagId);
                     const color = tag?.color ?? UNTAGGED_COLOR;
                     const height = Math.max(((seg.endMin - seg.startMin) / 60) * HOUR_PX, 14);
@@ -134,8 +205,61 @@ export default function Calendar() {
                         key={s.id}
                         data-session={s.id}
                         title={`${s.title || "Untitled session"}${tag ? ` · ${tag.name}` : ""}\n${range} (${formatDuration(durationSec(s, now))})`}
-                        className="absolute overflow-hidden rounded-md px-1.5 py-0.5 text-[11px] leading-tight text-white shadow-sm"
+                        className={`absolute overflow-hidden rounded-md px-1.5 py-0.5 text-[11px] leading-tight text-white shadow-sm ${
+                          movable ? (dragging ? "cursor-grabbing" : "cursor-grab") : ""
+                        }`}
+                        onPointerDown={(e) => {
+                          if (!movable || e.button !== 0) return;
+                          const col = e.currentTarget.parentElement as HTMLElement;
+                          e.currentTarget.setPointerCapture(e.pointerId);
+                          dragStart.current = {
+                            x0: e.clientX,
+                            y0: e.clientY,
+                            colW: col.offsetWidth,
+                            hourPx: HOUR_PX,
+                            minMin: Math.ceil(-seg.startMin / SNAP_MIN) * SNAP_MIN,
+                            maxMin: Math.floor((1440 - seg.endMin) / SNAP_MIN) * SNAP_MIN,
+                            minDay: -dayIdx,
+                            maxDay: days.length - 1 - dayIdx,
+                            moved: false,
+                            dDays: 0,
+                            dMin: 0,
+                          };
+                        }}
+                        onPointerMove={(e) => {
+                          const st = dragStart.current;
+                          if (!st) return;
+                          const dx = e.clientX - st.x0;
+                          const dy = e.clientY - st.y0;
+                          if (!st.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
+                          st.moved = true;
+                          const dMin = clamp(Math.round(((dy / st.hourPx) * 60) / SNAP_MIN) * SNAP_MIN, st.minMin, st.maxMin);
+                          const dDays = clamp(Math.round(dx / st.colW), st.minDay, st.maxDay);
+                          st.dDays = dDays;
+                          st.dMin = dMin;
+                          setDrag({ id: s.id, dDays, dMin });
+                        }}
+                        onPointerUp={() => {
+                          const st = dragStart.current;
+                          if (st?.moved && (st.dDays || st.dMin) && s.endedAt) {
+                            const shift = (iso: string) => addMinutes(addDays(new Date(iso), st.dDays), st.dMin).toISOString();
+                            updateSession(s.id, {
+                              title: s.title,
+                              tagId: s.tagId,
+                              startedAt: shift(s.startedAt),
+                              endedAt: shift(s.endedAt),
+                            });
+                          }
+                          endDrag();
+                        }}
+                        onPointerCancel={endDrag}
                         style={{
+                          touchAction: movable ? "none" : undefined,
+                          zIndex: dragging ? 20 : undefined,
+                          opacity: dragging ? 0.85 : undefined,
+                          transform: dragging
+                            ? `translate(${dragging.dDays * (dragStart.current?.colW ?? 0)}px, ${(dragging.dMin / 60) * HOUR_PX}px)`
+                            : undefined,
                           top: (seg.startMin / 60) * HOUR_PX,
                           height,
                           left: `calc(${(seg.lane / seg.lanes) * 100}% + 1px)`,

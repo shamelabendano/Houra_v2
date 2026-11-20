@@ -15,6 +15,8 @@ interface SessionState {
   /** Returns false if the times are invalid or it would create a second running session. */
   updateSession: (id: string, input: SessionInput) => boolean;
   deleteSession: (id: string) => void;
+  /** Puts a previous version of a session back (replaces it by id, or re-inserts it if deleted). Used by undo. */
+  restoreSession: (session: Session) => void;
   /** Detach sessions from deleted tags so no time is lost. */
   untagSessions: (tagIds: string[]) => void;
 }
@@ -85,6 +87,14 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   },
 
   deleteSession: (id) => set({ sessions: persist(get().sessions.filter((s) => s.id !== id)) }),
+
+  restoreSession: (session) => {
+    const all = get().sessions;
+    const next = all.some((s) => s.id === session.id)
+      ? all.map((s) => (s.id === session.id ? session : s))
+      : [...all, session];
+    set({ sessions: persist(next) });
+  },
 
   untagSessions: (tagIds) => {
     const sessions = get().sessions.map((s) =>

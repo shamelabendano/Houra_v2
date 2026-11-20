@@ -58,6 +58,23 @@ Settings page with a Backup section: export tags, sessions, settings and dashboa
 
 Verify: export, import into a second browser, and see the same sessions; invalid or non-Houra files show an error and change nothing.
 
+### Phase 9.5 — Group UX Fixes (Calendar, uncommitted on `local-preview`)
+Interaction fixes on top of the Phase 7 time-grid calendar and its drag-to-move. All edits go through `useSessionStore`; `Session`, `Tag` and `Settings` do not change, and durations still come from `aggregate.ts`.
+
+Changes (all in `src/pages/Calendar.tsx` unless noted):
+- **Undo:** each calendar edit (move, resize, create) pushes the previous session onto a stack (limit 20); a toast offers Undo for 6 seconds. Backed by the new `restoreSession(session)` in `src/store/useSessionStore.ts`, which replaces a session by id or re-inserts it if it was deleted.
+- **Drag across midnight:** a drag now moves the session by minutes (`shiftMin`) instead of days + minutes, so a block can cross midnight into other days. The move is recomputed from the pointer plus how far the grid scrolled since the press.
+- **Select, then drag:** the first press only selects a block; a selected block can then be dragged. Drag threshold raised from 4px to 8px so small hand wobbles don't count as a drag.
+- **Resize:** drag a block's top or bottom edge to change its start or end. Only the real start/end of a session can be resized, not a midnight clip.
+- **Create from the grid:** clicking an empty spot starts a new time block to fill in.
+- **Auto-scroll while dragging:** near the top or bottom edge of the grid the view keeps scrolling so far-away times are reachable.
+- **End-time label:** shown only on tall, full-width blocks (`END_TIME_MIN_HEIGHT_PX`, about 1h at base zoom); short blocks show their end by their bottom edge, and overlapping lanes are too narrow for the extra line.
+- **Time label placement:** sits above the block, or below it when too close to the top of the day, never on top of the block.
+
+Verify: move a session across midnight and Undo puts it back exactly; resize both edges and the day total changes to match; click an empty slot, save, and it appears in Today and History; delete then Undo restores the session; export a backup before and after and confirm only the edited sessions differ.
+
+Status: not committed or merged. Remaining: split into small `Calendar:` commits, open a PR, add it to the order of work.
+
 ### Phase 10 — Revamp: Today / History / Insights
 Merge the overlapping views by job: Today (timer + today's log + quick totals, replaces Home and Time Tracker), History (Day / Week / Month toggle, replaces Calendar and the Progress History list), Insights (trends, goals, streaks, earnings). UI and navigation only; `Session`, `Tag` and `Settings` do not change. Before starting, decide: keep or drop the Home widget grid (dropping it changes the stored dashboard layout, which sync uploads), and where Pomodoro, Earnings, Manage Tags and Settings live.
 
@@ -70,7 +87,8 @@ Update landing screenshots and copy to match the revamped app.
 
 ## Order of work (from now)
 1. Land the open PRs: #7 (calendar), time-grid calendar branch, title-spaces fix, #11 (Phase 9), #9 (tests), #8 (docs).
-2. Finish Phase 8 (Supabase check, merge #10).
-3. Phase 10 revamp.
-4. Phase 11 landing polish.
+2. Commit and PR the Group UX Fixes (Phase 9.5).
+3. Finish Phase 8 (Supabase check, merge #10).
+4. Phase 10 revamp.
+5. Phase 11 landing polish.
 ESLint/CI stay on ROADMAP.md until the user confirms.

@@ -19,6 +19,7 @@ export default function TimeTracker() {
   const [tagId, setTagId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Session | null>(null);
   const [adding, setAdding] = useState(false);
+  const [timeOnly, setTimeOnly] = useState(false);
   const [menu, setMenu] = useState(false);
 
   const patch = (s: Session, change: Partial<Pick<Session, "title" | "tagId">>) =>
@@ -54,9 +55,21 @@ export default function TimeTracker() {
           aria-label="Session title"
           className="min-w-[10rem] flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-accent"
         />
-        <span className="whitespace-nowrap text-sm tabular-nums text-ink/80">
-          {running ? `${formatClock(running.startedAt)} - now` : "00:00:00 am - 00:00:00 pm"}
-        </span>
+        {running ? (
+          <span className="whitespace-nowrap text-sm tabular-nums text-ink/80">
+            {formatClock(running.startedAt)} - now
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => { setTimeOnly(true); setAdding(true); }}
+            aria-label="Add manual entry"
+            title="Add manual entry"
+            className="whitespace-nowrap rounded-lg px-2 py-1 text-sm tabular-nums text-ink/80 hover:bg-sidebar"
+          >
+            00:00:00 am - 00:00:00 pm
+          </button>
+        )}
         <span data-testid="elapsed" className="w-20 border-l border-ink/60 pl-4 text-right text-base tabular-nums">
           {formatDuration(running ? durationSec(running, now) : 0)}
         </span>
@@ -75,7 +88,7 @@ export default function TimeTracker() {
             <div className="absolute right-3 top-12 z-10 w-40 overflow-hidden rounded-xl border bg-white text-sm shadow-lg">
               <button
                 className="block w-full px-3 py-2 text-left hover:bg-sidebar"
-                onClick={() => { setMenu(false); setAdding(true); }}
+                onClick={() => { setMenu(false); setTimeOnly(false); setAdding(true); }}
               >
                 Add manual entry
               </button>
@@ -114,7 +127,24 @@ export default function TimeTracker() {
       {editing && (
         <SessionEditor session={editing} onSave={(i) => updateSession(editing.id, i)} onClose={() => setEditing(null)} />
       )}
-      {adding && <SessionEditor session={null} onSave={addSession} onClose={() => setAdding(false)} />}
+      {adding && (
+        <SessionEditor
+          session={null}
+          initialTitle={title}
+          initialTagId={tagId}
+          timeOnly={timeOnly}
+          onSave={(input) => {
+            const ok = addSession(input);
+            if (ok) {
+              // The draft travels with the logged entry; reset the entry bar.
+              setTitle("");
+              setTagId(null);
+            }
+            return ok;
+          }}
+          onClose={() => setAdding(false)}
+        />
+      )}
     </div>
   );
 }
